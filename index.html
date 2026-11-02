@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⛪ Gestão de Contagem de Cultos</title>
+    <!-- Tailwind CSS para design limpo e responsivo -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Ícones FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- CABEÇALHO -->
+    <header class="bg-indigo-600 text-white shadow-md py-4 px-6">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fa-solid fa-church"></i> Contagem de Cultos
+            </h1>
+            <span class="text-xs bg-indigo-500 py-1 px-3 rounded-full">Painel Operacional</span>
+        </div>
+    </header>
+
+    <!-- NAVEGAÇÃO POR ABAS -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-4xl mx-auto flex">
+            <button onclick="mudarAba('cadastro')" id="btn-cadastro" class="flex-1 py-3 text-center font-semibold text-indigo-600 border-b-2 border-indigo-600 transition">
+                <i class="fa-solid fa-pen-to-square mr-1"></i> Registrar Contagem
+            </button>
+            <button onclick="mudarAba('relatorio')" id="btn-relatorio" class="flex-1 py-3 text-center font-semibold text-slate-500 hover:text-indigo-600 transition">
+                <i class="fa-solid fa-chart-pie mr-1"></i> Consultas e Relatórios
+            </button>
+        </div>
+    </nav>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="max-w-4xl mx-auto w-full p-4 md:p-6 flex-grow">
+
+        <!-- ABA 1: CADASTRO -->
+        <section id="aba-cadastro" class="bg-white rounded-xl shadow-md p-6 border border-slate-100">
+            <h2 class="text-lg font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100">
+                Lançamento de Presença por Culto
+            </h2>
+
+            <form id="formCulto" onsubmit="salvarCulto(event)" class="space-y-6">
+                <!-- Informações Básicas -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Data do Culto</label>
+                        <input type="date" id="dataCulto" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Horário / Culto</label>
+                        <select id="horarioCulto" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="Quarta-feira - 20:00">Quarta-feira - 20:00</option>
+                            <option value="Domingo - 08:30">Domingo - 08:30</option>
+                            <option value="Domingo - 10:00">Domingo - 10:00</option>
+                            <option value="Domingo - 11:30">Domingo - 11:30</option>
+                            <option value="Domingo - 18:00">Domingo - 18:00</option>
+                            <option value="Domingo - 19:30">Domingo - 19:30</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Responsável</label>
+                        <input type="text" id="responsavel" placeholder="Seu nome" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- SEÇÃO AUDITÓRIO -->
+                <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-blue-900 flex items-center gap-2">
+                            <i class="fa-solid fa-users"></i> Auditório (Principal)
+                        </h3>
+                        <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full">
+                            Subtotal Auditório: <span id="subtotalAuditorio">0</span>
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Adultos</label>
+                            <input type="number" id="audAdultos" min="0" value="0" oninput="calcularTotais()" class="w-full border border-slate-300 rounded-lg p-2 bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Adolescentes</label>
+                            <input type="number" id="audCriancas" min="0" value="0" oninput="calcularTotais()" class="w-full border border-slate-300 rounded-lg p-2 bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Crianças</label>
+                            <input type="number" id="audAdolescentes" min="0" value="0" oninput="calcularTotais()" class="w-full border border-slate-300 rounded-lg p-2 bg-white text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO PLAYKIDS -->
+                <div class="bg-amber-50/50 p-4 rounded-lg border border-amber-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-amber-900 flex items-center gap-2">
+                            <i class="fa-solid fa-child-reaching"></i> PlayKids
+                        </h3>
+                        <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full">
+                            Subtotal PlayKids: <span id="subtotalPlaykids">0</span>
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Adultos (Monitores/Apoio)</label>
+                            <input type="number" id="pkAdultos" min="0" value="0" oninput="calcularTotais()" class="w-full border border-slate-300 rounded-lg p-2 bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Crianças</label>
+                            <input type="number" id="pkCriancas" min="0" value="0" oninput="calcularTotais()" class="w-full border border-slate-300 rounded-lg p-2 bg-white text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO CLASS -->
+                <div class="bg-emerald-50/50 p-4 rounded-lg border border-emerald-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-emerald-900 flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap"></i> Class
+                        </h3>
+                        <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full">
+                            Subtotal Class: <span id="subtotalClass">0</span>
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Adultos (Professores/Apoio)</label>
+                            <input type="number" id="classAdultos" min="0" value="0" oninput="calcularTotais()" class="w-full border border-slate-300 rounded-lg p-2 bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Adolescentes</label>
+                            <input type="number" id="classCriancas" min="0" value="0" oninput="calcularTotais()" class="w-full border border-slate-300 rounded-lg p-2 bg-white text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAINEL DA SOMATÓRIA TOTAL GERAL -->
+                <div class="bg-indigo-900 text-white p-4 rounded-xl shadow flex justify-between items-center">
+                    <div>
+                        <span class="text-xs uppercase tracking-wider text-indigo-200 block">Somatória Total Geral do Culto</span>
+                        <span class="text-sm text-indigo-100">Auditório + PlayKids + Class</span>
+                    </div>
+                    <div class="text-3xl font-extrabold" id="displayTotalGeral">0</div>
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow transition duration-200">
+                    <i class="fa-solid fa-floppy-disk mr-2"></i> Gravar Contagem
+                </button>
+            </form>
+        </section>
+
+        <!-- ABA 2: RELATÓRIOS -->
+        <section id="aba-relatorio" class="hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-md p-6 border border-slate-100">
+                <h2 class="text-lg font-bold text-slate-700 mb-4">Painel de Indicadores e Estatísticas</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Tipo de Relatório / Consulta</label>
+                        <select id="tipoRelatorio" onchange="atualizarRelatorios()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="anual">Soma e Média Anual</option>
+                            <option value="mensal">Soma e Média Mensal</option>
+                            <option value="semanal">Soma e Média Semanal</option>
+                            <option value="diario">Consultar por Dia Específico</option>
+                        </select>
+                    </div>
+                    <div id="divFiltroData" class="hidden">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Selecionar Data</label>
+                        <input type="date" id="filtroData" onchange="atualizarRelatorios()" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                    </div>
+                </div>
+
+                <div id="resultadoRelatorio" class="space-y-4">
+                    <!-- Conteúdo gerado via JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SCRIPT DE LÓGICA DO FRONTEND -->
+    <script>
+        // Data atual como default
+        document.getElementById('dataCulto').valueAsDate = new Date();
+
+        function mudarAba(aba) {
+            const btnCad = document.getElementById('btn-cadastro');
+            const btnRel = document.getElementById('btn-relatorio');
+            const secCad = document.getElementById('aba-cadastro');
+            const secRel = document.getElementById('aba-relatorio');
+
+            if (aba === 'cadastro') {
+                btnCad.className = "flex-1 py-3 text-center font-semibold text-indigo-600 border-b-2 border-indigo-600 transition";
+                btnRel.className = "flex-1 py-3 text-center font-semibold text-slate-500 hover:text-indigo-600 transition";
+                secCad.classList.remove('hidden');
+                secRel.classList.add('hidden');
+            } else {
+                btnRel.className = "flex-1 py-3 text-center font-semibold text-indigo-600 border-b-2 border-indigo-600 transition";
+                btnCad.className = "flex-1 py-3 text-center font-semibold text-slate-500 hover:text-indigo-600 transition";
+                secRel.classList.remove('hidden');
+                secCad.classList.add('hidden');
+                atualizarRelatorios();
+            }
+        }
+
+        // Calcula os subtotais de cada setor e a Somatória Total Geral em tempo real
+        function calcularTotais() {
+            const audA = parseInt(document.getElementById('audAdultos').value) || 0;
+            const audC = parseInt(document.getElementById('audCriancas').value) || 0;
+            const audAd = parseInt(document.getElementById('audAdolescentes').value) || 0;
+            const subAud = audA + audC + audAd;
+            document.getElementById('subtotalAuditorio').innerText = subAud;
+
+            const pkA = parseInt(document.getElementById('pkAdultos').value) || 0;
+            const pkC = parseInt(document.getElementById('pkCriancas').value) || 0;
+            const subPk = pkA + pkC;
+            document.getElementById('subtotalPlaykids').innerText = subPk;
+
+            const classA = parseInt(document.getElementById('classAdultos').value) || 0;
+            const classC = parseInt(document.getElementById('classCriancas').value) || 0;
+            const subClass = classA + classC;
+            document.getElementById('subtotalClass').innerText = subClass;
+
+            const totalGeral = subAud + subPk + subClass;
+            document.getElementById('displayTotalGeral').innerText = totalGeral;
+
+            return { subAud, subPk, subClass, totalGeral };
+        }
+
+        function getCultos() {
+            return JSON.parse(localStorage.getItem('cultos_igreja') || '[]');
+        }
+
+        function salvarCulto(event) {
+            event.preventDefault();
+            
+            const dataStr = document.getElementById('dataCulto').value;
+            const dtObj = new Date(dataStr + 'T00:00:00');
+            const totais = calcularTotais();
+            
+            const registro = {
+                id: Date.now(),
+                data: dataStr,
+                ano: dtObj.getFullYear(),
+                mes: dtObj.getMonth() + 1,
+                semana: Math.ceil(dtObj.getDate() / 7),
+                culto: document.getElementById('horarioCulto').value,
+                responsavel: document.getElementById('responsavel').value,
+                auditorio: {
+                    adultos: parseInt(document.getElementById('audAdultos').value) || 0,
+                    criancas: parseInt(document.getElementById('audCriancas').value) || 0,
+                    adolescentes: parseInt(document.getElementById('audAdolescentes').value) || 0,
+                    subtotal: totais.subAud
+                },
+                playkids: {
+                    adultos: parseInt(document.getElementById('pkAdultos').value) || 0,
+                    criancas: parseInt(document.getElementById('pkCriancas').value) || 0,
+                    subtotal: totais.subPk
+                },
+                class: {
+                    adultos: parseInt(document.getElementById('classAdultos').value) || 0,
+                    adolescentes: parseInt(document.getElementById('classAdolescentes').value) || 0,
+                    subtotal: totais.subClass
+                },
+                total_geral: totais.totalGeral
+            };
+
+            let cultos = getCultos();
+            cultos.push(registro);
+            localStorage.setItem('cultos_igreja', JSON.stringify(cultos));
+
+            alert(`✅ Contagem gravada com sucesso!\nSomatória Total: ${totais.totalGeral} pessoas.`);
+            document.getElementById('formCulto').reset();
+            document.getElementById('dataCulto').valueAsDate = new Date();
+            calcularTotais();
+        }
+
+        function atualizarRelatorios() {
+            const tipo = document.getElementById('tipoRelatorio').value;
+            const divFiltro = document.getElementById('divFiltroData');
+            const container = document.getElementById('resultadoRelatorio');
+            const cultos = getCultos();
+
+            divFiltro.classList.toggle('hidden', tipo !== 'diario');
+
+            if (cultos.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 italic p-4 text-center">Ainda não há registros guardados.</p>`;
+                return;
+            }
+
+            let html = '';
+
+            if (tipo === 'anual') {
+                const anos = [...new Set(cultos.map(c => c.ano))];
+                anos.forEach(ano => {
+                    const filtrados = cultos.filter(c => c.ano === ano);
+                    const soma = filtrados.reduce((acc, c) => acc + c.total_geral, 0);
+                    const media = soma / filtrados.length;
+                    html += `
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-indigo-600 block text-lg">Ano ${ano}</span>
+                                <span class="text-xs text-slate-500">${filtrados.length} cultos cadastrados</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="block font-bold text-slate-700">${soma} pessoas (Somatória Total)</span>
+                                <span class="text-xs text-indigo-500 font-semibold">Média: ${media.toFixed(1)} / culto</span>
+                            </div>
+                        </div>`;
+                });
+            } else if (tipo === 'mensal') {
+                const mesesMap = {};
+                cultos.forEach(c => {
+                    const key = `${c.mes.toString().padStart(2, '0')}/${c.ano}`;
+                    if (!mesesMap[key]) mesesMap[key] = [];
+                    mesesMap[key].push(c);
+                });
+
+                for (let [mesAno, lista] of Object.entries(mesesMap)) {
+                    const soma = lista.reduce((acc, c) => acc + c.total_geral, 0);
+                    const media = soma / lista.length;
+                    html += `
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-indigo-600 block text-lg">Mês: ${mesAno}</span>
+                                <span class="text-xs text-slate-500">${lista.length} cultos cadastrados</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="block font-bold text-slate-700">${soma} pessoas (Somatória Total)</span>
+                                <span class="text-xs text-indigo-500 font-semibold">Média: ${media.toFixed(1)} / culto</span>
+                            </div>
+                        </div>`;
+                }
+            } else if (tipo === 'semanal') {
+                const semMap = {};
+                cultos.forEach(c => {
+                    const key = `Semana ${c.semana} (${c.ano})`;
+                    if (!semMap[key]) semMap[key] = [];
+                    semMap[key].push(c);
+                });
+
+                for (let [sem, lista] of Object.entries(semMap)) {
+                    const soma = lista.reduce((acc, c) => acc + c.total_geral, 0);
+                    const media = soma / lista.length;
+                    html += `
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-indigo-600 block text-lg">${sem}</span>
+                                <span class="text-xs text-slate-500">${lista.length} cultos cadastrados</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="block font-bold text-slate-700">${soma} pessoas (Somatória Total)</span>
+                                <span class="text-xs text-indigo-500 font-semibold">Média: ${media.toFixed(1)} / culto</span>
+                            </div>
+                        </div>`;
+                }
+            } else if (tipo === 'diario') {
+                const dataFiltro = document.getElementById('filtroData').value || new Date().toISOString().split('T')[0];
+                if(!document.getElementById('filtroData').value) {
+                    document.getElementById('filtroData').value = dataFiltro;
+                }
+
+                const filtrados = cultos.filter(c => c.data === dataFiltro);
+                const soma = filtrados.reduce((acc, c) => acc + c.total_geral, 0);
+                const mediaDia = filtrados.length > 0 ? (soma / filtrados.length) : 0;
+                
+                html += `
+                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100 mb-4 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-indigo-600 uppercase">Resumo do Dia</span>
+                            <h3 class="text-xl font-bold text-indigo-900">${dataFiltro}</h3>
+                            <p class="text-xs text-slate-500">${filtrados.length} culto(s) realizado(s)</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-lg font-extrabold text-indigo-700">${soma} pessoas</span>
+                            <span class="text-xs text-indigo-500 font-semibold">Média: ${mediaDia.toFixed(1)} / culto</span>
+                        </div>
+                    </div>`;
+
+                if (filtrados.length === 0) {
+                    html += `<p class="text-slate-500 italic text-center">Nenhum culto cadastrado para esta data.</p>`;
+                } else {
+                    filtrados.forEach(c => {
+                        html += `
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm space-y-2">
+                                <div class="flex justify-between items-center border-b pb-2">
+                                    <span class="font-bold text-slate-800">${c.culto}</span>
+                                    <span class="text-xs bg-slate-100 text-slate-600 py-1 px-2 rounded">Resp: ${c.responsavel}</span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1">
+                                    <div class="bg-blue-50 p-2 rounded"><strong>Auditório:</strong> ${c.auditorio.subtotal || 0} <span class="text-[10px] text-slate-500">(${c.auditorio.adultos} Ad / ${c.auditorio.criancas} Cri / ${c.auditorio.adolescentes} Ado)</span></div>
+                                    <div class="bg-amber-50 p-2 rounded"><strong>PlayKids:</strong> ${c.playkids.subtotal || 0} <span class="text-[10px] text-slate-500">(${c.playkids.adultos} Ad / ${c.playkids.criancas} Cri)</span></div>
+                                    <div class="bg-emerald-50 p-2 rounded"><strong>Class:</strong> ${c.class.subtotal || 0} <span class="text-[10px] text-slate-500">(${c.class.adultos} Ad / ${c.class.criancas} Cri)</span></div>
+                                </div>
+                                <div class="text-right font-extrabold text-indigo-600 text-sm border-t pt-2">Somatória Total do Culto: ${c.total_geral} pessoas</div>
+                            </div>`;
+                    });
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Executa o cálculo inicial
+        calcularTotais();
+    </script>
+</body>
+</html>
